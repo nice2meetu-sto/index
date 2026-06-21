@@ -38,7 +38,7 @@ header h1{font-size:18px;font-weight:700;color:var(--navy);letter-spacing:-.01em
 .btn-reset-top{padding:9px 18px;font-size:13px;font-weight:700;border:1px solid var(--border);background:#fff;color:var(--muted);border-radius:11px;cursor:pointer;font-family:inherit;transition:background .15s,border-color .15s,color .15s;}
 .btn-reset-top:hover{background:#f3f4f6;border-color:var(--navy);color:var(--navy);}
 /* 페이지 상/하단 이동 플로팅 버튼 */
-.scroll-nav{position:fixed;right:18px;bottom:26px;display:flex;flex-direction:column;gap:8px;z-index:90;}
+.scroll-nav{position:fixed;right:24px;top:42%;transform:translateY(-50%);display:flex;flex-direction:column;gap:8px;z-index:90;}
 .scroll-nav button{width:54px;height:54px;border-radius:50%;border:none;background:var(--navy);color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(52,59,104,.32);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;line-height:1.1;transition:background .18s,transform .15s,box-shadow .18s;}
 .scroll-nav button:hover{background:var(--navy-dark);transform:translateY(-2px);box-shadow:0 8px 22px rgba(52,59,104,.4);}
 .scroll-nav button .arr{font-size:14px;}
@@ -172,13 +172,13 @@ input:read-only{background:#f5f5f5;color:var(--muted);cursor:default;}
       <label class="fl">국가명</label>
       <input type="text" lang="ko" id="dest-country" placeholder="예: 일본, 미국, 프랑스" oninput="searchDest()" autocomplete="off" list="country-list">
       <datalist id="country-list"></datalist>
-      <div class="hint" id="hint-country">—</div>
+      <div class="hint" id="hint-country"></div>
     </div>
     <div class="col">
       <label class="fl">도시명</label>
       <input type="text" lang="ko" id="dest-city" placeholder="예: 도쿄, 뉴욕, 파리" oninput="searchDest()" autocomplete="off" list="city-list">
       <datalist id="city-list"></datalist>
-      <div class="hint" id="hint-city">—</div>
+      <div class="hint" id="hint-city"></div>
     </div>
     <div class="col-fx" style="min-width:120px;">
       <label class="fl">적용 등급</label>
@@ -2228,6 +2228,7 @@ function switchTab(t){
   document.getElementById('tab-'+t).classList.add('active');
   document.getElementById('data-actions').style.display=(t==='data')?'flex':'none';
   document.getElementById('calc-actions').style.display=(t==='calc')?'flex':'none';
+  document.getElementById('scroll-nav').style.display=(t==='data')?'none':'flex';
   if(t==='data') renderDataTab();
 }
 
@@ -2550,8 +2551,8 @@ function downloadHTML(){
   src=src.replace(/(<div[^>]*id="grade-display"[^>]*style=")[^"]*"/, '$1color:var(--muted);"');
   src=src.replace(/(<div[^>]*id="grade-display"[^>]*>)[^<]*(<\/div>)/, '$1$2');
   src=src.replace(/(<span[^>]*id="grade-tag"[^>]*>)[\s\S]*?(<\/span>\s*\n\s*<\/div>)/, '$1$2');
-  src=src.replace(/(<div[^>]*id="hint-country"[^>]*>)[^<]*(<\/div>)/, '$1—$2');
-  src=src.replace(/(<div[^>]*id="hint-city"[^>]*>)[^<]*(<\/div>)/, '$1—$2');
+  src=src.replace(/(<div[^>]*id="hint-country"[^>]*>)[^<]*(<\/div>)/, '$1$2');
+  src=src.replace(/(<div[^>]*id="hint-city"[^>]*>)[^<]*(<\/div>)/, '$1$2');
   src=src.replace(/(<div[^>]*id="hint-reason"[^>]*>)[^<]*(<\/div>)/, '$1$2');
   // 날짜
   src=src.replace(/(<input[^>]*id="date-start"[^>]*?) value="[^"]*"/, '$1 value=""');
@@ -2706,8 +2707,8 @@ function resetAll(){
   document.getElementById('grade-display').textContent='';
   document.getElementById('grade-display').style.color='var(--muted)';
   document.getElementById('grade-tag').innerHTML='';
-  document.getElementById('hint-country').textContent='—';
-  document.getElementById('hint-city').textContent='—';
+  document.getElementById('hint-country').textContent='';
+  document.getElementById('hint-city').textContent='';
   document.getElementById('hint-reason').textContent='';
   currentGrade=null;
   // 출장자 → 팀원 1명
@@ -2778,8 +2779,8 @@ function searchDest(){
   const cv=document.getElementById('dest-country').value;
   const ci=document.getElementById('dest-city').value;
   const cR=findGrade(cv), ciR=findGrade(ci);
-  document.getElementById('hint-country').textContent=cR?`"${cR.key}" → ${cR.grade}등급`:cv.trim()?`"${cv.trim()}" 없음`:'—';
-  document.getElementById('hint-city').textContent=ci.trim()?(ciR?`"${ciR.key}" → ${ciR.grade}등급`:`"${ci.trim()}" 없음`):'—';
+  document.getElementById('hint-country').textContent=cR?`"${cR.key}" → ${cR.grade}등급`:cv.trim()?`"${cv.trim()}" 없음`:'';
+  document.getElementById('hint-city').textContent=ci.trim()?(ciR?`"${ciR.key}" → ${ciR.grade}등급`:`"${ci.trim()}" 없음`):'';
   let chosen=null,reason='';
   if(cR&&ciR){
     if(GRADE_ORDER[ciR.grade]<=GRADE_ORDER[cR.grade]){chosen=ciR.grade;reason=`도시(${ciR.grade}) 우선 적용`;}
