@@ -29,7 +29,7 @@
 body{font-family:'Pretendard','Pretendard Variable','Noto Sans KR',-apple-system,'Apple SD Gothic Neo',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:0 1rem 4rem;font-size:14px;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
 .container{max-width:780px;margin:0 auto;}
 header{display:flex;align-items:center;gap:14px;padding:1.5rem 0 1rem;}
-header .logo{background:var(--navy);color:#fff;border-radius:10px;padding:7px 15px;font-size:13px;font-weight:700;white-space:nowrap;letter-spacing:-.01em;}
+header .logo{color:var(--navy);font-size:18px;font-weight:700;white-space:nowrap;letter-spacing:-.01em;}
 header h1{font-size:18px;font-weight:700;color:var(--navy);letter-spacing:-.01em;}
 .tabs{display:flex;gap:6px;margin-bottom:20px;align-items:center;flex-wrap:wrap;}
 .tab-btn{padding:9px 20px;font-size:13px;font-weight:700;border:none;background:none;cursor:pointer;color:var(--muted);font-family:inherit;border-radius:11px;transition:background .18s,color .18s,transform .18s;}
@@ -2775,9 +2775,23 @@ function findGrade(v){
   return null;
 }
 let currentGrade=null;
+// 입력값이 있을 때만 매칭되는 항목으로 datalist를 채움 (빈 칸 클릭 시 전체 목록 안 뜨게)
+function fillDatalist(listId, query){
+  const dl=document.getElementById(listId);
+  if(!dl) return;
+  const q=(query||'').trim().toLowerCase();
+  if(!q){ dl.innerHTML=''; return; }
+  const matches=Object.keys(CG)
+    .filter(k=>k.toLowerCase().includes(q))
+    .sort((a,b)=>a.localeCompare(b,'ko'))
+    .slice(0,30);
+  dl.innerHTML=matches.map(k=>`<option value="${k}">`).join('');
+}
 function searchDest(){
   const cv=document.getElementById('dest-country').value;
   const ci=document.getElementById('dest-city').value;
+  fillDatalist('country-list', cv);
+  fillDatalist('city-list', ci);
   const cR=findGrade(cv), ciR=findGrade(ci);
   document.getElementById('hint-country').textContent=cR?`"${cR.key}" → ${cR.grade}등급`:cv.trim()?`"${cv.trim()}" 없음`:'';
   document.getElementById('hint-city').textContent=ci.trim()?(ciR?`"${ciR.key}" → ${ciR.grade}등급`:`"${ci.trim()}" 없음`):'';
@@ -3214,15 +3228,11 @@ function calculateCore(isPartial){
 }
 
 // 날짜 초기값 없음 — 사용자가 직접 선택
-// 자동완성 datalist 채우기
+// 자동완성: 미리 채우지 않고, 입력할 때만 매칭 결과를 datalist에 채움 (searchDest 참고)
+// 로드 시 목록을 비워 둠 → 빈 칸 클릭 시 전체 목록이 뜨지 않음 (저장된 파일 포함)
 (function(){
-  const sorted = Object.keys(CG).sort((a,b)=>a.localeCompare(b,'ko'));
-  const cl = document.getElementById('country-list');
-  const ci = document.getElementById('city-list');
-  sorted.forEach(k=>{
-    cl.insertAdjacentHTML('beforeend',`<option value="${k}">`);
-    ci.insertAdjacentHTML('beforeend',`<option value="${k}">`);
-  });
+  const cl=document.getElementById('country-list'); if(cl) cl.innerHTML='';
+  const ci=document.getElementById('city-list'); if(ci) ci.innerHTML='';
 })();
 // 저장된 계산서를 열었을 때 자동 재계산
 (function(){
