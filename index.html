@@ -35,6 +35,13 @@ header h1{font-size:18px;font-weight:700;color:var(--navy);letter-spacing:-.01em
 .tab-btn{padding:9px 20px;font-size:13px;font-weight:700;border:none;background:none;cursor:pointer;color:var(--muted);font-family:inherit;border-radius:11px;transition:background .18s,color .18s,transform .18s;}
 .tab-btn:hover{background:var(--navy-light);color:var(--navy);transform:translateY(-1px);}
 .tab-btn.active{color:#fff;background:var(--navy);}
+.btn-reset-top{padding:9px 18px;font-size:13px;font-weight:700;border:1px solid var(--border);background:#fff;color:var(--muted);border-radius:11px;cursor:pointer;font-family:inherit;transition:background .15s,border-color .15s,color .15s;}
+.btn-reset-top:hover{background:#f3f4f6;border-color:var(--navy);color:var(--navy);}
+/* 페이지 상/하단 이동 플로팅 버튼 */
+.scroll-nav{position:fixed;right:18px;bottom:26px;display:flex;flex-direction:column;gap:8px;z-index:90;}
+.scroll-nav button{width:54px;height:54px;border-radius:50%;border:none;background:var(--navy);color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(52,59,104,.32);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;line-height:1.1;transition:background .18s,transform .15s,box-shadow .18s;}
+.scroll-nav button:hover{background:var(--navy-dark);transform:translateY(-2px);box-shadow:0 8px 22px rgba(52,59,104,.4);}
+.scroll-nav button .arr{font-size:14px;}
 .tab-panel{display:none;}
 .tab-panel.active{display:block;}
 .step{background:var(--card);border:1px solid rgba(0,0,0,.04);border-radius:18px;padding:1.35rem 1.5rem;margin-bottom:16px;box-shadow:var(--shadow-card);animation:appleFadeUp .6s var(--ease-apple) backwards;transition:transform .35s var(--ease-apple),box-shadow .35s var(--ease-apple);}
@@ -129,7 +136,7 @@ input:read-only{background:#f5f5f5;color:var(--muted);cursor:default;}
 ::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.28);background-clip:content-box;}
 @media print{
   body{background:#fff;padding:0;}
-  .tabs,.calc-btn,.add-btn,.del-btn,.print-btn,.rate-link-btn{display:none !important;}
+  .tabs,.calc-btn,.add-btn,.del-btn,.print-btn,.rate-link-btn,.scroll-nav{display:none !important;}
   #result-section{display:block !important;}
   .bt .grandrow td,.bt .hdr-total{background:#343B68 !important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
   .bt thead th,.bt .cat,.bt .sub{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
@@ -146,6 +153,9 @@ input:read-only{background:#f5f5f5;color:var(--muted);cursor:default;}
 <div class="tabs">
   <button class="tab-btn active" onclick="switchTab('calc')">여비 계산</button>
   <button class="tab-btn" onclick="switchTab('data')">여비 기준 데이터</button>
+  <span id="calc-actions" style="margin-left:auto;display:inline-flex;gap:8px;align-items:center;">
+    <button class="btn-reset-top" onclick="resetAll()">🔄 초기화</button>
+  </span>
   <span id="data-actions" style="margin-left:auto;display:none;gap:8px;align-items:center;">
     <a class="rate-link-btn" href="https://www.law.go.kr/법령별표서식/(공무원%20여비%20규정,20260102,별표4)" target="_blank" rel="noopener">📖 기준 법령 보러가기</a>
     <span id="admin-ctrl" style="display:inline-flex;gap:8px;align-items:center;"><button class="pw-btn" onclick="showAdminLogin()">✏️ 여비수정</button></span><!--/admin-ctrl-->
@@ -1921,6 +1931,12 @@ input:read-only{background:#f5f5f5;color:var(--muted);cursor:default;}
 </div><!-- /tab-data -->
 </div><!-- /container -->
 
+<!-- 페이지 상/하단 이동 버튼 -->
+<div class="scroll-nav" id="scroll-nav">
+  <button onclick="window.scrollTo({top:0,behavior:'smooth'})" title="맨 위로"><span class="arr">▲</span>위로</button>
+  <button onclick="window.scrollTo({top:document.documentElement.scrollHeight,behavior:'smooth'})" title="맨 아래로"><span class="arr">▼</span>아래로</button>
+</div>
+
 <script>
 /* ════════════════════════════════
    데이터 (관리자가 수정하는 영역)
@@ -2211,6 +2227,7 @@ function switchTab(t){
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
   document.getElementById('tab-'+t).classList.add('active');
   document.getElementById('data-actions').style.display=(t==='data')?'flex':'none';
+  document.getElementById('calc-actions').style.display=(t==='calc')?'flex':'none';
   if(t==='data') renderDataTab();
 }
 
@@ -2487,6 +2504,7 @@ function saveAsHTML(){
     '$1<button class="pw-btn" onclick="showAdminLogin()">✏️ 여비수정</button>$2'
   );
   src=src.replace(/(<span[^>]*id="data-actions"[^>]*style=")[^"]*"/, '$1margin-left:auto;display:none;gap:8px;align-items:center;"');
+  src=src.replace(/(<span[^>]*id="calc-actions"[^>]*style=")[^"]*"/, '$1margin-left:auto;display:inline-flex;gap:8px;align-items:center;"');
   src=src.replace(/(<div[^>]*id="dl-box"[^>]*style=")[^"]*"/, '$1display:none;"');
   src=src.replace(/(<div[^>]*id="city-add-row"[^>]*style=")[^"]*"/, '$1display:none;"');
 
@@ -2576,6 +2594,7 @@ function downloadHTML(){
   src=src.replace(/(<span[^>]*id="admin-ctrl"[^>]*>)[\s\S]*?(<\/span><!--\/admin-ctrl-->)/,
     '$1<button class="pw-btn" onclick="showAdminLogin()">✏️ 여비수정</button>$2');
   src=src.replace(/(<span[^>]*id="data-actions"[^>]*style=")[^"]*"/, '$1margin-left:auto;display:none;gap:8px;align-items:center;"');
+  src=src.replace(/(<span[^>]*id="calc-actions"[^>]*style=")[^"]*"/, '$1margin-left:auto;display:inline-flex;gap:8px;align-items:center;"');
   src=src.replace(/(<div[^>]*id="dl-box"[^>]*style=")[^"]*"/, '$1display:none;"');
   src=src.replace(/(<div[^>]*id="city-add-row"[^>]*style=")[^"]*"/, '$1display:none;"');
   // 힌트 텍스트 초기화
