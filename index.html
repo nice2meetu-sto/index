@@ -2,29 +2,47 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>국외출장 여비 계산기 — 서울관광재단</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+/* ── 디자인 시스템 토큰 (Apple-style 공용 시스템) ─────────────────── */
 :root{
-  --navy:#1A2F5E;--navy-dark:#112046;--navy-light:#e8ecf4;
-  --green-ok:#1e7e34;--border:#d8dde6;--bg:#f4f6fa;
-  --card:#fff;--text:#1a1a2e;--muted:#6b7280;--radius:10px;
-  --tag-가-bg:#FFF3CD;--tag-가-fg:#856404;
-  --tag-나-bg:#D4EDDA;--tag-나-fg:#155724;
-  --tag-다-bg:#CCE5FF;--tag-다-fg:#004085;
-  --tag-라-bg:#F8D7DA;--tag-라-fg:#721c24;
+  /* 신규 디자인 시스템 토큰 */
+  --main:#343B68;     --main-lt:#E9F3FF;   --main-dk:#2b315a;
+  --valid:#248A3D;    --valid-bg:#E8F8EE;
+  --warn90:#9A6700;   --warn90-bg:#FFF4E0;
+  --warn60:#C25E00;   --warn60-bg:#FFF0E0;
+  --warn30:#C62B25;   --warn30-bg:#FFEDEC;
+  --invalid:#86868b;  --invalid-bg:#F2F2F4;
+  --ease-apple:cubic-bezier(.16,1,.3,1);
+  --shadow-card:0 1px 2px rgba(0,0,0,.03),0 8px 24px rgba(0,0,0,.04);
+  --shadow-card-hover:0 16px 44px rgba(52,59,104,.16);
+  /* 기존 변수명을 신규 팔레트로 매핑 (전체 UI 리스킨) */
+  --navy:var(--main);--navy-dark:var(--main-dk);--navy-light:var(--main-lt);
+  --green-ok:var(--valid);--border:#e8e8ed;--bg:#f5f5f7;
+  --card:#fff;--text:#1d1d1f;--muted:#6e6e73;--radius:14px;
+  --tag-가-bg:var(--warn90-bg);--tag-가-fg:var(--warn90);
+  --tag-나-bg:var(--valid-bg);--tag-나-fg:var(--valid);
+  --tag-다-bg:var(--main-lt);--tag-다-fg:var(--main);
+  --tag-라-bg:var(--warn30-bg);--tag-라-fg:var(--warn30);
 }
-body{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:0 1rem 4rem;font-size:14px;}
+body{font-family:'Pretendard','Pretendard Variable','Noto Sans KR',-apple-system,'Apple SD Gothic Neo',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:0 1rem 4rem;font-size:14px;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
 .container{max-width:780px;margin:0 auto;}
 header{display:flex;align-items:center;gap:14px;padding:1.5rem 0 1rem;}
-header .logo{background:var(--navy);color:#fff;border-radius:8px;padding:6px 14px;font-size:13px;font-weight:600;white-space:nowrap;}
-header h1{font-size:18px;font-weight:700;color:var(--navy);}
-.tabs{display:flex;gap:4px;margin-bottom:20px;border-bottom:2px solid var(--border);}
-.tab-btn{padding:9px 22px;font-size:13px;font-weight:600;border:none;background:none;cursor:pointer;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-2px;font-family:inherit;border-radius:6px 6px 0 0;transition:all .15s;}
-.tab-btn:hover{background:var(--navy-light);color:var(--navy);}
-.tab-btn.active{color:var(--navy);border-bottom-color:var(--navy);background:var(--navy-light);}
+header .logo{background:var(--navy);color:#fff;border-radius:10px;padding:7px 15px;font-size:13px;font-weight:700;white-space:nowrap;letter-spacing:-.01em;}
+header h1{font-size:18px;font-weight:700;color:var(--navy);letter-spacing:-.01em;}
+.tabs{display:flex;gap:6px;margin-bottom:20px;}
+.tab-btn{padding:9px 20px;font-size:13px;font-weight:700;border:none;background:none;cursor:pointer;color:var(--muted);font-family:inherit;border-radius:11px;transition:background .18s,color .18s,transform .18s;}
+.tab-btn:hover{background:var(--navy-light);color:var(--navy);transform:translateY(-1px);}
+.tab-btn.active{color:#fff;background:var(--navy);}
 .tab-panel{display:none;}
 .tab-panel.active{display:block;}
-.step{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem 1.4rem;margin-bottom:14px;}
+.step{background:var(--card);border:1px solid rgba(0,0,0,.04);border-radius:18px;padding:1.35rem 1.5rem;margin-bottom:16px;box-shadow:var(--shadow-card);animation:appleFadeUp .6s var(--ease-apple) backwards;transition:transform .35s var(--ease-apple),box-shadow .35s var(--ease-apple);}
+.step:hover{box-shadow:var(--shadow-card-hover);}
+.step:nth-of-type(2){animation-delay:.06s;}
+.step:nth-of-type(3){animation-delay:.12s;}
+.step:nth-of-type(4){animation-delay:.18s;}
+@keyframes appleFadeUp{from{opacity:0;transform:translateY(22px);}to{opacity:1;transform:none;}}
 .step-header{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
 .step-num{width:26px;height:26px;border-radius:50%;background:var(--navy);color:#fff;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .step-title{font-size:14px;font-weight:600;}
@@ -35,8 +53,8 @@ header h1{font-size:18px;font-weight:700;color:var(--navy);}
 .fl{font-size:12px;color:var(--muted);display:block;margin-bottom:5px;font-weight:500;}
 input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 input[type=number]{-moz-appearance:textfield;}
-input[type="text"],input[type="number"],input[type="date"],input[type="password"],select{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:7px;font-size:13px;color:var(--text);background:#fff;font-family:inherit;transition:border-color .15s;}
-input:focus,select:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba(26,47,94,.08);}
+input[type="text"],input[type="number"],input[type="date"],input[type="password"],select{width:100%;padding:8px 11px;border:1.5px solid var(--border);border-radius:11px;font-size:13px;color:var(--text);background:#fff;font-family:inherit;transition:border-color .15s,box-shadow .15s;}
+input:focus,select:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba(52,59,104,.1);}
 input:read-only{background:#f5f5f5;color:var(--muted);cursor:default;}
 .tag{display:inline-block;padding:3px 11px;border-radius:20px;font-size:12px;font-weight:600;}
 .tag-가{background:var(--tag-가-bg);color:var(--tag-가-fg);}
@@ -46,18 +64,18 @@ input:read-only{background:#f5f5f5;color:var(--muted);cursor:default;}
 .hint{font-size:12px;color:var(--muted);margin-top:5px;min-height:18px;}
 .grade-box{display:flex;align-items:center;gap:8px;height:38px;}
 .grade-letter{font-size:22px;font-weight:700;color:var(--muted);}
-.add-btn{font-size:12px;color:var(--navy);cursor:pointer;background:none;border:1.5px dashed var(--navy);border-radius:7px;padding:5px 14px;margin-top:6px;font-family:inherit;transition:background .12s;}
+.add-btn{font-size:12px;color:var(--navy);cursor:pointer;background:none;border:1.5px dashed var(--navy);border-radius:11px;padding:6px 15px;margin-top:6px;font-family:inherit;transition:background .12s;}
 .add-btn:hover{background:var(--navy-light);}
 .del-btn{font-size:12px;color:var(--muted);cursor:pointer;background:none;border:none;padding:4px 7px;border-radius:5px;font-family:inherit;}
 .del-btn:hover{background:#f3f4f6;color:#e53e3e;}
 .irow{display:flex;gap:8px;align-items:center;margin-bottom:7px;flex-wrap:wrap;}
 .il{font-size:12px;color:var(--muted);white-space:nowrap;}
 .ul{font-size:12px;color:var(--muted);white-space:nowrap;}
-.rate-link-btn{display:inline-flex;align-items:center;gap:5px;padding:8px 14px;background:var(--navy-light);color:var(--navy);border:1px solid #b8c5de;border-radius:7px;font-size:13px;font-weight:600;text-decoration:none;font-family:inherit;white-space:nowrap;}
-.rate-link-btn:hover{background:#d0d9ec;}
+.rate-link-btn{display:inline-flex;align-items:center;gap:5px;padding:8px 14px;background:var(--navy-light);color:var(--navy);border:1px solid rgba(52,59,104,.18);border-radius:11px;font-size:13px;font-weight:600;text-decoration:none;font-family:inherit;white-space:nowrap;transition:background .15s;}
+.rate-link-btn:hover{background:#d9e6fb;}
 .note{font-size:11px;color:var(--muted);margin-top:8px;line-height:1.6;}
-.calc-btn{width:100%;background:var(--navy);color:#fff;border:none;border-radius:var(--radius);padding:13px;font-size:15px;font-weight:700;cursor:pointer;margin-top:6px;font-family:inherit;transition:background .15s;}
-.calc-btn:hover{background:var(--navy-dark);}
+.calc-btn{width:100%;background:var(--navy);color:#fff;border:none;border-radius:12px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;margin-top:6px;font-family:inherit;transition:background .2s,transform .15s,box-shadow .2s;}
+.calc-btn:hover{background:var(--navy-dark);transform:translateY(-1px);box-shadow:0 7px 20px rgba(52,59,104,.3);}
 .adj-tbl{width:100%;border-collapse:collapse;font-size:13px;}
 .adj-tbl th{background:var(--navy-light);color:var(--text);padding:7px 8px;font-weight:600;border:1px solid var(--border);text-align:center;}
 .adj-tbl td{border:1px solid var(--border);padding:6px 8px;text-align:center;}
@@ -66,13 +84,13 @@ input:read-only{background:#f5f5f5;color:var(--muted);cursor:default;}
 .bt{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed;}
 .bt th,.bt td{border:1px solid #888;padding:5px;text-align:center;vertical-align:middle;word-break:keep-all;}
 .bt thead th{background:#dce3ef;font-weight:700;font-size:11px;}
-.bt .hdr-total{background:#1A2F5E;color:#fff;font-size:13px;font-weight:700;text-align:right;padding-right:10px;}
+.bt .hdr-total{background:#343B68;color:#fff;font-size:13px;font-weight:700;text-align:right;padding-right:10px;}
 .bt .hdr-rate{background:#dce3ef;font-size:11px;text-align:right;padding-right:8px;}
 .bt .cat{background:#f0f3f8;font-weight:700;}
 .bt .sub{background:#f8f9fc;font-weight:600;}
 .bt .money{text-align:right;padding-right:7px;}
 .bt .lft{text-align:left;padding-left:7px;font-size:11px;color:#333;}
-.bt .grandrow td{background:#1A2F5E !important;color:#fff !important;font-size:13px;font-weight:700;}
+.bt .grandrow td{background:#343B68 !important;color:#fff !important;font-size:13px;font-weight:700;}
 .print-btn{display:block;width:100%;margin-top:12px;padding:9px;background:#fff;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;color:var(--muted);cursor:pointer;font-family:inherit;}
 .print-btn:hover{background:#f9fafb;}
 /* 관리자 탭 */
@@ -82,8 +100,8 @@ input:read-only{background:#f5f5f5;color:var(--muted);cursor:default;}
 .admin-bar{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.4rem;margin-bottom:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
 .admin-bar.authed{border-color:#86efac;background:#f0fdf4;}
 .pw-input{width:140px !important;}
-.pw-btn{padding:8px 16px;background:var(--navy);color:#fff;border:none;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;}
-.pw-btn:hover{background:var(--navy-dark);}
+.pw-btn{padding:8px 16px;background:var(--navy);color:#fff;border:none;border-radius:11px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;transition:background .2s,transform .15s,box-shadow .2s;}
+.pw-btn:hover{background:var(--navy-dark);transform:translateY(-1px);box-shadow:0 7px 20px rgba(52,59,104,.3);}
 .logout-btn{font-size:12px;color:var(--muted);background:none;border:1px solid var(--border);border-radius:6px;padding:4px 12px;cursor:pointer;font-family:inherit;}
 .logout-btn:hover{background:#f3f4f6;}
 .pw-err{color:#e53e3e;font-size:12px;}
@@ -104,14 +122,18 @@ input:read-only{background:#f5f5f5;color:var(--muted);cursor:default;}
 /* 다운로드 안내 */
 .dl-box{background:var(--navy-light);border-radius:var(--radius);padding:14px 16px;margin-top:16px;}
 .dl-box p{font-size:12px;color:var(--muted);line-height:1.7;margin-bottom:10px;}
-.dl-btn{background:var(--navy);color:#fff;border:none;border-radius:7px;padding:9px 22px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;}
-.dl-btn:hover{background:var(--navy-dark);}
+.dl-btn{background:var(--navy);color:#fff;border:none;border-radius:11px;padding:9px 22px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .2s,transform .15s,box-shadow .2s;}
+.dl-btn:hover{background:var(--navy-dark);transform:translateY(-1px);box-shadow:0 7px 20px rgba(52,59,104,.3);}
 .admin-msg{font-size:12px;color:var(--green-ok);margin-top:8px;min-height:18px;}
+/* 스크롤바 */
+::-webkit-scrollbar{width:11px;height:11px;}
+::-webkit-scrollbar-thumb{background:rgba(0,0,0,.16);border-radius:9px;border:3px solid transparent;background-clip:content-box;}
+::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.28);background-clip:content-box;}
 @media print{
   body{background:#fff;padding:0;}
   .tabs,.calc-btn,.add-btn,.del-btn,.print-btn,.rate-link-btn{display:none !important;}
   #result-section{display:block !important;}
-  .bt .grandrow td,.bt .hdr-total{background:#1A2F5E !important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .bt .grandrow td,.bt .hdr-total{background:#343B68 !important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
   .bt thead th,.bt .cat,.bt .sub{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
 }
 </style>
@@ -198,7 +220,7 @@ input:read-only{background:#f5f5f5;color:var(--muted);cursor:default;}
       </div>
     </div>
     <div style="flex:0 0 auto;display:flex;flex-direction:column;justify-content:flex-end;">
-      <button onclick="toggleCal()" id="cal-toggle-btn" style="padding: 8px 14px; background: var(--navy-light); color: var(--navy); border: 1px solid rgb(184, 197, 222); border-radius: 7px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; white-space: nowrap;">
+      <button onclick="toggleCal()" id="cal-toggle-btn" style="padding: 8px 14px; background: var(--navy-light); color: var(--navy); border: 1px solid rgba(52,59,104,.18); border-radius: 11px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; white-space: nowrap;">
         📅 캘린더로 선택
       </button>
     </div>
@@ -3190,7 +3212,7 @@ function exportExcel(){
     const addr=XLSX.utils.encode_cell({r:row,c:col});
     ws[addr]={v:val,t:typeof val==='number'?'n':'s',...opts};
   }
-  const navyFill={fgColor:{rgb:'1A2F5E'}};
+  const navyFill={fgColor:{rgb:'343B68'}};
   const headerFill={fgColor:{rgb:'DCE3EF'}};
   const subFill={fgColor:{rgb:'F8F9FC'}};
   const catFill={fgColor:{rgb:'F0F3F8'}};
@@ -3220,7 +3242,7 @@ function exportExcel(){
 
   // 행2: 헤더
   COLS.forEach((c,i)=>{
-    setCell(r,i,c,{s:{font:boldWhite,fill:{fgColor:{rgb:'1A2F5E'}},alignment:center,border}});
+    setCell(r,i,c,{s:{font:boldWhite,fill:{fgColor:{rgb:'343B68'}},alignment:center,border}});
   });
   r++;
 
