@@ -1,7 +1,7 @@
 <html lang="ko"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>국외출장 여비 계산기 — 서울관광재단</title>
+<title>국외출장 여비 계산기</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -157,7 +157,7 @@ input:read-only{background:#f5f5f5;color:var(--muted);cursor:default;}
     <button class="btn-reset-top" onclick="resetAll()">🔄 초기화</button>
   </span>
   <span id="data-actions" style="margin-left:auto;display:none;gap:8px;align-items:center;">
-    <a class="rate-link-btn" href="https://www.law.go.kr/법령별표서식/(공무원%20여비%20규정,20260102,별표4)" target="_blank" rel="noopener">📖 기준 법령 보러가기</a>
+    <a class="rate-link-btn" href="https://www.law.go.kr/법령별표서식/(공무원%20여비%20규정,20260102,별표4)" target="_blank" rel="noopener">📖 공무원 여비 규정 보러가기</a>
     <span id="admin-ctrl" style="display:inline-flex;gap:8px;align-items:center;"><button class="btn-reset-top" onclick="showAdminLogin()">✏️ 여비수정</button></span><!--/admin-ctrl-->
   </span>
 </div>
@@ -374,7 +374,7 @@ input:read-only{background:#f5f5f5;color:var(--muted);cursor:default;}
   <div class="step-header"><div class="step-num">6</div><div class="step-title">준비금 및 기타 항목</div></div>
   <div class="irow">
     <span class="il" style="min-width:44px;">준비금</span>
-    <input type="text" lang="ko" id="prepfund-name" placeholder="대상 (예: 환차액, 여행자보험 등)" style="flex:1.5;min-width:120px;">
+    <input type="text" lang="ko" id="prepfund-name" placeholder="대상 (예: 여행자보험 등)" style="flex:1.5;min-width:120px;">
     <span class="il">금액</span>
     <input type="text" lang="ko" inputmode="numeric" id="prepfund-amt" placeholder="0" style="flex:1;min-width:100px;" oninput="formatComma(this);recalcSilent()">
     <span class="ul">원</span>
@@ -398,21 +398,21 @@ input:read-only{background:#f5f5f5;color:var(--muted);cursor:default;}
         <td style="font-weight:500;">일비</td>
         <td><div style="display:flex;align-items:center;gap:4px;justify-content:center;"><input type="number" id="adj-ilbi-rate" value="1.5" min="0.1" max="10" style="width:60px;" oninput="recalcSilent()"><span class="ul">배</span></div></td>
         <td><select id="adj-ilbi-type" onchange="recalcSilent()"><option value="가산">가산</option><option value="감액">감액</option></select></td>
-        <td><input type="text" lang="ko" id="adj-ilbi-reason" placeholder="예: 위험지역 근무" style="font-size:12px;" oninput="recalcSilent()"></td>
+        <td><input type="text" lang="ko" id="adj-ilbi-reason" style="font-size:12px;" oninput="recalcSilent()"></td>
       </tr>
       <tr>
         <td><input type="checkbox" id="adj-sikbi-on" onchange="recalcSilent()" style="width:auto;"></td>
         <td style="font-weight:500;">식비</td>
         <td><div style="display:flex;align-items:center;gap:4px;justify-content:center;"><input type="number" id="adj-sikbi-rate" value="1.5" min="0.1" max="10" style="width:60px;" oninput="recalcSilent()"><span class="ul">배</span></div></td>
         <td><select id="adj-sikbi-type" onchange="recalcSilent()"><option value="가산">가산</option><option value="감액">감액</option></select></td>
-        <td><input type="text" lang="ko" id="adj-sikbi-reason" placeholder="예: 현지 물가 상승" style="font-size:12px;" oninput="recalcSilent()"></td>
+        <td><input type="text" lang="ko" id="adj-sikbi-reason" style="font-size:12px;" oninput="recalcSilent()"></td>
       </tr>
       <tr>
         <td><input type="checkbox" id="adj-sukbak-on" onchange="recalcSilent()" style="width:auto;"></td>
         <td style="font-weight:500;">숙박비</td>
         <td><div style="display:flex;align-items:center;gap:4px;justify-content:center;"><input type="number" id="adj-sukbak-rate" value="1.5" min="0.1" max="10" style="width:60px;" oninput="recalcSilent()"><span class="ul">배</span></div></td>
         <td><select id="adj-sukbak-type" onchange="recalcSilent()"><option value="가산">가산</option><option value="감액">감액</option></select></td>
-        <td><input type="text" lang="ko" id="adj-sukbak-reason" placeholder="예: 성수기 숙박" style="font-size:12px;" oninput="recalcSilent()"></td>
+        <td><input type="text" lang="ko" id="adj-sukbak-reason" style="font-size:12px;" oninput="recalcSilent()"></td>
       </tr>
       <tr style="background:#fffbea;">
         <td><input type="checkbox" id="adj-ceo-on" onchange="recalcSilent()" style="width:auto;"></td>
@@ -2958,7 +2958,7 @@ function calcDays(){
       document.getElementById('days-display').value=d;
       // 날짜가 바뀌면 숙박 일수도 기본값(일수-1)으로 갱신. 단, 사용자가 직접 수정한 경우엔 유지.
       if(!nightsManual) ni.value=Math.max(0,d-1);
-      document.getElementById('nights-hint').textContent=`※ ${d}일 기준 기본 ${Math.max(0,d-1)}박 자동 입력. 실제 숙박이 다르면 직접 수정 가능하십니다.`;
+      document.getElementById('nights-hint').textContent=`※ ${d}일 기준 기본 ${Math.max(0,d-1)}박 자동 입력. 실제 숙박이 다르면 직접 수정 가능.`;
       recalcSilent();
     } else {
       document.getElementById('days-display').value='';
@@ -3017,7 +3017,7 @@ function removeFlight(btn){
 }
 function addExtra(){
   const d=document.createElement('div');d.className='irow';
-  d.innerHTML=`<input type="text" lang="ko" class="extra-name" placeholder="항목명 (예: 예비비, 참가비)" style="flex:1.5;min-width:120px;"/>
+  d.innerHTML=`<input type="text" lang="ko" class="extra-name" placeholder="항목명 (예: 행사운영비, 참가비)" style="flex:1.5;min-width:120px;"/>
     <span class="il">금액</span>
     <input type="text" lang="ko" inputmode="numeric" class="extra-amt" placeholder="0" style="flex:1;min-width:100px;" oninput="formatComma(this);recalcSilent()"/>
     <span class="ul">원</span>
