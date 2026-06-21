@@ -505,12 +505,13 @@ input:read-only{background:#f5f5f5;color:var(--muted);cursor:default;}
 <!-- ══════════ 여비 기준 데이터 탭 ══════════ -->
 <div id="tab-data" class="tab-panel">
 
-  <!-- 관리자 인증 바 -->
-  <div class="admin-bar authed" id="admin-bar">
-    <span style="font-size:13px;color:var(--muted);">🔒 수정하려면 관리자 비밀번호를 입력하세요.</span>
-    <input type="password" class="pw-input" id="admin-pw" placeholder="비밀번호" onkeydown="if(event.key==='Enter')adminLogin()"/>
-    <button class="pw-btn" onclick="adminLogin()">확인</button>
-    <span class="pw-err" id="pw-err"></span>
+  <!-- 관리자 인증 + 기준 법령 보러가기 -->
+  <div style="display:flex;gap:8px;align-items:stretch;flex-wrap:wrap;margin-bottom:14px;">
+    <div class="admin-bar" id="admin-bar" style="flex:1;min-width:240px;margin-bottom:0;">
+      <span style="font-size:13px;color:var(--muted);">🔒 여비 기준 데이터는 관리자만 수정할 수 있습니다.</span>
+      <button class="pw-btn" style="margin-left:auto;" onclick="showAdminLogin()">✏️ 여비수정</button>
+    </div><!--/admin-bar-->
+    <a class="rate-link-btn" href="https://www.law.go.kr/법령별표서식/(공무원%20여비%20규정,20260102,별표4)" target="_blank" rel="noopener" style="padding:0 18px;">📖 기준 법령 보러가기</a>
   </div>
 
   <!-- ① 여비 기준액 -->
@@ -2220,6 +2221,15 @@ function switchTab(t){
 }
 
 /* ── 관리자 인증 ── */
+function showAdminLogin(){
+  const bar=document.getElementById('admin-bar');
+  bar.innerHTML=`<span style="font-size:13px;color:var(--muted);">🔒 관리자 비밀번호를 입력하세요.</span>
+    <input type="password" class="pw-input" id="admin-pw" placeholder="비밀번호" style="margin-left:auto;" onkeydown="if(event.key==='Enter')adminLogin()"/>
+    <button class="pw-btn" onclick="adminLogin()">확인</button>
+    <button class="logout-btn" onclick="adminLogout()">취소</button>
+    <span class="pw-err" id="pw-err"></span>`;
+  const pw=document.getElementById('admin-pw'); if(pw) pw.focus();
+}
 function adminLogin(){
   if(document.getElementById('admin-pw').value===ADMIN_PW){
     isAdmin=true;
@@ -2227,7 +2237,7 @@ function adminLogin(){
     document.getElementById('pw-err').textContent='';
     const bar=document.getElementById('admin-bar');
     bar.classList.add('authed');
-    bar.innerHTML=`<span class="authed-msg">✅ 관리자 모드 — 수정 가능</span><button class="logout-btn" onclick="adminLogout()">로그아웃</button>`;
+    bar.innerHTML=`<span class="authed-msg">✅ 관리자 모드 — 수정 가능</span><button class="logout-btn" style="margin-left:auto;" onclick="adminLogout()">로그아웃</button>`;
     document.getElementById('dl-box').style.display='block';
     renderDataTab();
   } else {
@@ -2238,10 +2248,8 @@ function adminLogout(){
   isAdmin=false;
   const bar=document.getElementById('admin-bar');
   bar.classList.remove('authed');
-  bar.innerHTML=`<span style="font-size:13px;color:var(--muted);">🔒 수정하려면 관리자 비밀번호를 입력하세요.</span>
-    <input type="password" class="pw-input" id="admin-pw" placeholder="비밀번호" onkeydown="if(event.key==='Enter')adminLogin()"/>
-    <button class="pw-btn" onclick="adminLogin()">확인</button>
-    <span class="pw-err" id="pw-err"></span>`;
+  bar.innerHTML=`<span style="font-size:13px;color:var(--muted);">🔒 여비 기준 데이터는 관리자만 수정할 수 있습니다.</span>
+    <button class="pw-btn" style="margin-left:auto;" onclick="showAdminLogin()">✏️ 여비수정</button>`;
   document.getElementById('dl-box').style.display='none';
   renderDataTab();
 }
@@ -2490,8 +2498,8 @@ function saveAsHTML(){
 
   // ── 5. 관리자 로그아웃 상태 ──
   src=src.replace(
-    /(<div[^>]*class="admin-bar[^"]*"[^>]*id="admin-bar"[^>]*>)[\s\S]*?(<\/div>\s*\n\s*<!-- ① 여비)/,
-    '$1\n    <span style="font-size:13px;color:var(--muted);">🔒 수정하려면 관리자 비밀번호를 입력하세요.</span>\n    <input type="password" class="pw-input" id="admin-pw" placeholder="비밀번호" onkeydown="if(event.key===\'Enter\')adminLogin()"/>\n    <button class="pw-btn" onclick="adminLogin()">확인</button>\n    <span class="pw-err" id="pw-err"></span>\n  $2'
+    /(<div[^>]*id="admin-bar"[^>]*>)[\s\S]*?(<\/div><!--\/admin-bar-->)/,
+    '$1\n      <span style="font-size:13px;color:var(--muted);">🔒 여비 기준 데이터는 관리자만 수정할 수 있습니다.</span>\n      <button class="pw-btn" style="margin-left:auto;" onclick="showAdminLogin()">✏️ 여비수정</button>\n    $2'
   );
   src=src.replace(/(<div[^>]*id="dl-box"[^>]*style=")[^"]*"/, '$1display:none;"');
   src=src.replace(/(<div[^>]*id="city-add-row"[^>]*style=")[^"]*"/, '$1display:none;"');
@@ -2579,8 +2587,8 @@ function downloadHTML(){
   // 기타 항목 초기화 (비움)
   src=src.replace(/(<div id="extras">)[\s\S]*?(<\/div>\s*\n\s*<button class="add-btn" onclick="addExtra\(\)">)/, '$1\n  $2');
   // 관리자 로그아웃 상태 & dl-box/city-add-row 숨김
-  src=src.replace(/(<div[^>]*class="admin-bar[^"]*"[^>]*id="admin-bar"[^>]*>)[\s\S]*?(<\/div>\s*\n\s*<!-- ① 여비)/,
-    '$1\n    <span style="font-size:13px;color:var(--muted);">🔒 수정하려면 관리자 비밀번호를 입력하세요.</span>\n    <input type="password" class="pw-input" id="admin-pw" placeholder="비밀번호" onkeydown="if(event.key===\'Enter\')adminLogin()"/>\n    <button class="pw-btn" onclick="adminLogin()">확인</button>\n    <span class="pw-err" id="pw-err"></span>\n  $2');
+  src=src.replace(/(<div[^>]*id="admin-bar"[^>]*>)[\s\S]*?(<\/div><!--\/admin-bar-->)/,
+    '$1\n      <span style="font-size:13px;color:var(--muted);">🔒 여비 기준 데이터는 관리자만 수정할 수 있습니다.</span>\n      <button class="pw-btn" style="margin-left:auto;" onclick="showAdminLogin()">✏️ 여비수정</button>\n    $2');
   src=src.replace(/(<div[^>]*id="dl-box"[^>]*style=")[^"]*"/, '$1display:none;"');
   src=src.replace(/(<div[^>]*id="city-add-row"[^>]*style=")[^"]*"/, '$1display:none;"');
   // 힌트 텍스트 초기화
