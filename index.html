@@ -232,15 +232,18 @@ input:read-only{background:#f5f5f5;color:var(--muted);cursor:default;}
         📅 캘린더로 선택
       </button>
     </div>
-    <div style="flex:0 0 auto;display:flex;flex-direction:column;justify-content:flex-end;min-width:80px;">
-      <label class="fl">출장 일수</label>
-      <div style="height:38px;display:flex;align-items:center;font-size:20px;font-weight:700;color:var(--navy);" id="days-display"></div>
-    </div>
     <div style="flex:0 0 auto;display:flex;flex-direction:column;justify-content:flex-end;min-width:100px;">
       <label class="fl">숙박 일수</label>
       <div style="display:flex;align-items:center;gap:6px;">
         <input type="number" id="nights-input" min="0" max="365" placeholder="0" style="width:65px;" oninput="nightsManual=true;recalcSilent()">
         <span class="ul">박</span>
+      </div>
+    </div>
+    <div style="flex:0 0 auto;display:flex;flex-direction:column;justify-content:flex-end;min-width:100px;">
+      <label class="fl">출장 일수</label>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <div id="days-display" style="width:65px;padding:8px 11px;border:1.5px solid var(--border);border-radius:11px;background:#f2f2f4;font-size:14px;font-weight:700;color:var(--navy);text-align:center;box-sizing:border-box;"></div>
+        <span class="ul">일</span>
       </div>
     </div>
   </div>
@@ -2952,7 +2955,7 @@ function calcDays(){
   if(s&&e){
     const d=Math.round((new Date(e)-new Date(s))/86400000)+1;
     if(d>0){
-      document.getElementById('days-display').textContent=d+'일';
+      document.getElementById('days-display').textContent=d;
       // 날짜가 바뀌면 숙박 일수도 기본값(일수-1)으로 갱신. 단, 사용자가 직접 수정한 경우엔 유지.
       if(!nightsManual) ni.value=Math.max(0,d-1);
       document.getElementById('nights-hint').textContent=`※ ${d}일 기준 기본 ${Math.max(0,d-1)}박 자동 입력. 실제 숙박이 다르면 직접 수정 가능하십니다.`;
