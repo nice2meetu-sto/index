@@ -207,17 +207,13 @@ input:read-only{background:#f5f5f5;color:var(--muted);cursor:default;}
   <div style="display:flex;gap:10px;align-items:stretch;flex-wrap:wrap;margin-bottom:10px;">
     <div style="flex:1;min-width:130px;">
       <label class="fl">출발일</label>
-      <div style="position:relative;">
-        <input type="text" lang="ko" id="date-start-display" placeholder="YYYY-MM-DD" readonly="" style="cursor:pointer;background:#fff;" onclick="toggleCal()">
-        <input type="date" id="date-start" onchange="onDateInputChange()" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;">
-      </div>
+      <input type="text" lang="ko" id="date-start-display" placeholder="YYYY-MM-DD" inputmode="numeric" maxlength="10" autocomplete="off" style="background:#fff;" onchange="onDateTextCommit()" onkeydown="if(event.key==='Enter'){event.preventDefault();onDateTextCommit();this.blur();}">
+      <input type="hidden" id="date-start">
     </div>
     <div style="flex:1;min-width:130px;">
       <label class="fl">귀국일</label>
-      <div style="position:relative;">
-        <input type="text" lang="ko" id="date-end-display" placeholder="YYYY-MM-DD" readonly="" style="cursor:pointer;background:#fff;" onclick="toggleCal()">
-        <input type="date" id="date-end" onchange="onDateInputChange()" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;">
-      </div>
+      <input type="text" lang="ko" id="date-end-display" placeholder="YYYY-MM-DD" inputmode="numeric" maxlength="10" autocomplete="off" style="background:#fff;" onchange="onDateTextCommit()" onkeydown="if(event.key==='Enter'){event.preventDefault();onDateTextCommit();this.blur();}">
+      <input type="hidden" id="date-end">
     </div>
     <div style="flex:0 0 auto;display:flex;flex-direction:column;justify-content:flex-end;">
       <button onclick="toggleCal()" id="cal-toggle-btn" style="padding: 8px 14px; background: var(--navy-light); color: var(--navy); border: 1px solid rgba(52,59,104,.18); border-radius: 11px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; white-space: nowrap;">
@@ -231,7 +227,7 @@ input:read-only{background:#f5f5f5;color:var(--muted);cursor:default;}
     <div style="flex:0 0 auto;display:flex;flex-direction:column;justify-content:flex-end;min-width:100px;">
       <label class="fl">숙박 일수</label>
       <div style="display:flex;align-items:center;gap:6px;">
-        <input type="number" id="nights-input" min="0" max="365" placeholder="0" style="width:65px;" oninput="recalcSilent()">
+        <input type="number" id="nights-input" min="0" max="365" placeholder="0" style="width:65px;" oninput="nightsManual=true;recalcSilent()">
         <span class="ul">박</span>
       </div>
     </div>
@@ -2718,6 +2714,7 @@ function resetAll(){
   document.getElementById('date-end-display').value='';
   document.getElementById('days-display').textContent='—';
   document.getElementById('nights-input').value='';
+  nightsManual=false;
   document.getElementById('nights-hint').textContent='※ 출발일·귀국일 포함 일수 자동 계산. 숙박 일수는 실제 숙박 수 직접 입력.';
   calStart=null; calEnd=null;
   if(document.getElementById('cal-wrap').style.display!=='none'){
@@ -2799,6 +2796,7 @@ function addPerson(){
 function removePerson(btn){if(document.querySelectorAll('#passengers .irow').length>1)btn.parentElement.remove();}
 /* ── 캘린더 ── */
 let calYear, calMonth, calStart=null, calEnd=null;
+let nightsManual=false; // 사용자가 숙박 일수를 직접 수정했는지 여부
 
 function initCal(){
   const t=new Date();
@@ -2921,16 +2919,54 @@ function onDateInputChange(){
 function calcDays(){
   const s=document.getElementById('date-start').value;
   const e=document.getElementById('date-end').value;
+  const ni=document.getElementById('nights-input');
   if(s&&e){
     const d=Math.round((new Date(e)-new Date(s))/86400000)+1;
     if(d>0){
       document.getElementById('days-display').textContent=d+'일';
-      const ni=document.getElementById('nights-input');
-      if(!ni.value) ni.value=Math.max(0,d-1);
+      // 날짜가 바뀌면 숙박 일수도 기본값(일수-1)으로 갱신. 단, 사용자가 직접 수정한 경우엔 유지.
+      if(!nightsManual) ni.value=Math.max(0,d-1);
       document.getElementById('nights-hint').textContent=`※ ${d}일 기준 기본 ${Math.max(0,d-1)}박 자동 입력. 실제 숙박이 다르면 직접 수정 가능하십니다.`;
       recalcSilent();
+    } else {
+      document.getElementById('days-display').textContent='—';
     }
+  } else {
+    document.getElementById('days-display').textContent='—';
   }
+}
+/* 'YYYY-MM-DD', 'YYYY.M.D', 'YYYY/MM/DD', 'YYYYMMDD' 등을 표준 YYYY-MM-DD로 파싱 (실패 시 빈 문자열) */
+function parseDateStr(s){
+  if(!s) return '';
+  s=String(s).trim();
+  if(!s) return '';
+  const digits=s.replace(/[^0-9]/g,'');
+  let y,mo,d;
+  const m=s.match(/^(\d{4})[^0-9]+(\d{1,2})[^0-9]+(\d{1,2})$/);
+  if(m){ y=+m[1]; mo=+m[2]; d=+m[3]; }
+  else if(/^\d{8}$/.test(digits)){ y=+digits.slice(0,4); mo=+digits.slice(4,6); d=+digits.slice(6,8); }
+  else return '';
+  if(mo<1||mo>12||d<1||d>31) return '';
+  const dt=new Date(y,mo-1,d);
+  if(dt.getFullYear()!==y||dt.getMonth()!==mo-1||dt.getDate()!==d) return '';
+  return `${y}-${String(mo).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+}
+/* 키보드로 입력한 날짜를 확정: 파싱→hidden 값 반영→캘린더 동기화→일수 재계산 */
+function onDateTextCommit(){
+  const sEl=document.getElementById('date-start-display');
+  const eEl=document.getElementById('date-end-display');
+  const sVal=parseDateStr(sEl.value);
+  const eVal=parseDateStr(eEl.value);
+  // 유효한 값은 표준 표기로 정규화, 잘못된 값은 사용자가 고칠 수 있게 그대로 둠
+  if(sVal) sEl.value=sVal;
+  if(eVal) eEl.value=eVal;
+  document.getElementById('date-start').value=sVal;
+  document.getElementById('date-end').value=eVal;
+  calStart=sVal?new Date(sVal+'T00:00:00'):null;
+  calEnd=eVal?new Date(eVal+'T00:00:00'):null;
+  if(calStart){calYear=calStart.getFullYear();calMonth=calStart.getMonth();}
+  if(document.getElementById('cal-wrap').style.display!=='none') renderCal();
+  calcDays();
 }
 function addFlight(){
   const d=document.createElement('div');d.className='irow';
